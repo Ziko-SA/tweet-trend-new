@@ -20,8 +20,7 @@ environment {
         }  
             steps {
             withSonarQubeEnv('ziko-sonarqube-server') {
-                sh ''' $SCANNER_HOME/bin/ziko-sonar-scanner -Dsonar.projectName=twittetrend 
-                 -Dsonar.projectKey=ziko01-key_twittertrend '''
+                sh "${tool 'ziko-sonar-scanner'}/bin/sonar-scanner"
             }
         }
 
