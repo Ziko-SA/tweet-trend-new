@@ -14,16 +14,16 @@ environment {
                 sh 'mvn clean deploy -e -X -DargLine="-Xmx4096m"'
             }
         }
-    stage("SonarQube Analysis") {
-    environment { 
+        stage("SonarQube Analysis") {
+        environment { 
         scannerHome = tool 'ziko-sonar-scanner';    
-    }
-    steps {
-    withSonarQubeEnv('ziko-sonarqube-server') {
-      sh "${scannerHome}/bin/sonar-scanner"
-    }
-    }
-    
+        }
+            steps {
+            withSonarQubeEnv('ziko-sonarqube-server') {
+            sh "${scannerHome}/bin/sonar-scanner"
+}
+}
+
   }
 }
 }
