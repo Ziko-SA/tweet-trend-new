@@ -11,7 +11,7 @@ environment {
     stages {
         stage('build') {
             steps {
-                sh'mvn clean depoy'
+                sh'mvn clean delpoy'
         }
     }
 }
