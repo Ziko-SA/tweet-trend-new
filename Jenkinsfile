@@ -14,17 +14,15 @@ environment {
                 sh 'mvn clean deploy -e -X -DargLine="-Xmx4096m"'
             }
         }
-        stage("SonarQube Analysis") {
-        environment { 
-        scannerHome = tool 'ziko-sonar-scanner';    
-        }
+        stage("SonarQube Analysis"){
             steps {
             withSonarQubeEnv('ziko-sonarqube-server') {
-            sh "${scannerHome}/bin/sonar-scanner"
-}
-}
+                sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=ziko01-keytwittetrend
+                -Dsonar.projectName=twittetrend '''
+            }
+        }
 
-  }
+    }
 }
 }
 
