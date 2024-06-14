@@ -13,16 +13,18 @@ pipeline {
                 sh 'mvn clean deploy -e -X -DargLine="-Xmx4096m"'
             }
         }
-        stage("SonarQube Analysis") {
-            environment { 
-                scannerHome = tool 'ziko-sonar-scanner'    
-            }
+        
+        stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('ziko-sonarqube-server') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                script {
+                    def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    withSonarQubeEnv('sonar-server') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectName=twittertrend -Dsonar.projectKey=twittertrend"
+                    }
                 }
             }
         }
+        
         stage("Quality Gate") {
             steps {
                 script {
@@ -32,7 +34,3 @@ pipeline {
         }
     }
 }
-
-    
-
-
