@@ -26,6 +26,7 @@ pipeline {
         stage("Sonarqube Analysis") {
             steps {
                 script {
+                    def sonarScannerInstallation = tool 'sonar-scanner'
                     withSonarQubeEnv('sonar-server') {
                         sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectName=twittertrend -Dsonar.projectKey=twittertrend"
                     }
