@@ -23,7 +23,15 @@ environment {
         sh "${scannerHome}/bin/sonar-scanner"
         }
         }
-
+    
+    stage("quality gate"){
+           steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-cred' 
+                }
+            } 
+        }
+    
     }
 }
 }
