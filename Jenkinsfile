@@ -10,21 +10,28 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-                sh 'mvn clean deploy -e -X -DargLine="-Xmx4096m"'
+                echo "----------- Build started ----------"
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
+                echo "----------- Build completed ----------"
             }
         }
-        
-        stage("Sonarqube Analysis") {
+        stage("Unit Test") {
+            steps {
+                echo "----------- Unit test started ----------"
+                sh 'mvn surefire-report:report'
+                echo "----------- Unit test completed ----------"
+            }
+        }
+        stage("SonarQube Analysis") {
             steps {
                 script {
-                    def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     withSonarQubeEnv('sonar-server') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectName=twittertrend -Dsonar.projectKey=twittertrend"
+                        sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=twittertrend \
+                         -Dsonar.projectKey=twittertrend '''
                     }
                 }
             }
         }
-        
         stage("Quality Gate") {
             steps {
                 script {
