@@ -8,35 +8,30 @@ pipeline {
         PATH = "/opt/apache-maven-3.9.7/bin:$PATH"
     }
     stages {
-        stage("build"){
+        stage("Build") {
             steps {
-                 echo "----------- build started ----------"
+                echo "----------- Build started ----------"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
-                 echo "----------- build complted ----------"
+                echo "----------- Build completed ----------"
             }
         }
-        stage("test"){
-            steps{
-                echo "----------- unit test started ----------"
+        stage("Unit Test") {
+            steps {
+                echo "----------- Unit test started ----------"
                 sh 'mvn surefire-report:report'
-                 echo "----------- unit test Complted ----------"
+                echo "----------- Unit test completed ----------"
             }
         }
-        
-        stage("Sonarqube Analysis") {
-        environment {
-             scannerHome = tool 'sonar-scanner'
-        }    
+        stage("SonarQube Analysis") {
             steps {
                 script {
-                    def sonarScannerInstallation = tool 'sonar-scanner'
                     withSonarQubeEnv('sonar-server') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectName=twittertrend -Dsonar.projectKey=twittertrend"
+                        sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=twittertrend \
+                         -Dsonar.projectKey=twittertrend '''
                     }
                 }
             }
         }
-        
         stage("Quality Gate") {
             steps {
                 script {
