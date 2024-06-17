@@ -1,4 +1,5 @@
 def registry = 'https://zikosa.jfrog.io'
+
 pipeline {
     agent {
         node {
@@ -28,7 +29,7 @@ pipeline {
                 scannerHome = tool 'sonar-scanner'
             }
             steps {
-                withSonarQubeEnv('sonar-server') { // If you have configured more than one global server connection, you can specify its name
+                withSonarQubeEnv('sonar-server') {
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
@@ -36,8 +37,8 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-                        def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
+                    timeout(time: 1, unit: 'HOURS') {
+                        def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
                             error "Pipeline aborted due to quality gate failure: ${qg.status}"
                         }
@@ -48,27 +49,32 @@ pipeline {
         stage("Jar Publish") {
             steps {
                 script {
-                     echo '<--------------- Jar Publish Started --------------->'
-                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifact-cred"
-                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                     def uploadSpec = """{
-                            "files": [
-                                {
-                                  "pattern": "jarstaging/(*)",
-                                  "target": "ttrend-libs-release-local/{1}",
-                                  "flat": "false",
-                                  "props" : "${properties}",
-                                  "exclusions": [ "*.sha1", "*.md5"]
-                                }
-                             ]
-                         }"""
-                     def buildInfo = server.upload(uploadSpec)
-                     buildInfo.env.collect()
-                     server.publishBuildInfo(buildInfo)
-                     echo '<--------------- Jar Publish Ended --------------->'  
-                
+                    echo '<--------------- Jar Publish Started --------------->'
+                    def server = Artifactory.newServer(url: "${registry}/artifactory", credentialsId: "artifact-cred")
+                    def properties = "buildid=${env.BUILD_ID},commitid=${env.GIT_COMMIT}"
+                    def uploadSpec = """{
+                          "files": [
+                            {
+                              "pattern": "jarstaging/(*)",
+                              "target": "ttrend-libs-release-local/{1}",
+                              "flat": "false",
+                              "props" : "${properties}",
+                              "exclusions": [ "*.sha1", "*.md5"]
+                            }
+                         ]
+                     }"""
+                    echo "Upload Spec: ${uploadSpec}" // Log the upload spec for debugging
+                    try {
+                        def buildInfo = server.upload(uploadSpec)
+                        buildInfo.env.collect()
+                        server.publishBuildInfo(buildInfo)
+                        echo '<--------------- Jar Publish Ended --------------->'
+                    } catch (Exception e) {
+                        echo "Upload failed: ${e.message}"
+                        throw e
+                    }
                 }
-            }   
-        } 
+            }
+        }
     }
 }
