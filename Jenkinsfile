@@ -1,7 +1,4 @@
 def registry = 'https://zikosa.jfrog.io'
-def imageName = 'zikosa.jfrog.io/ziko-docker-local/ttrend'
-def version = '2.1.4'
-
 pipeline {
     agent {
         node {
@@ -78,6 +75,8 @@ pipeline {
                 }
             }
         }
+        def imageName = 'zikosa.jfrog.io/ziko-docker-local/ttrend'
+        def version = '2.1.4'
         stage("Docker Build") {
             steps {
                 script {
