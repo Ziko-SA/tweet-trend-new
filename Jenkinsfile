@@ -75,12 +75,13 @@ pipeline {
                 }
             }
         }
-        def imageName = 'zikosa.jfrog.io/ziko-docker-local/ttrend'
-        def version = '2.1.4'
+        
         stage("Docker Build") {
             steps {
                 script {
-                    echo '<--------------- Docker Build Started --------------->'
+                    echo '<--------------- Docker Build Started --------------->' 
+                    def imageName = 'zikosa.jfrog.io/ziko-docker-local/ttrend'
+                    def version = '2.1.4'
                     app = docker.build("${imageName}:${version}")
                     echo '<--------------- Docker Build Ended --------------->'
                 }
